@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
     android:gravity="center_vertical">
 
-    <!-- Red warning triangle icon -->
+    <!-- Guard avatar circle -->
     <FrameLayout
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="@drawable/bg_tag_harmful"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="@drawable/bg_circle_teal"
         android:layout_marginRight="12dp">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_warning_alert"
-            android:contentDescription="@string/alert_label"
-            app:tint="@color/error" />
+            android:src="@drawable/ic_guard_person"
+            android:contentDescription="@string/nav_guards" />
+
     </FrameLayout>
 
-    <!-- Gate name + handler -->
+    <!-- Guard name + gate -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -33,34 +32,34 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvRecentStatus"
+            android:id="@+id/tvGuardName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/status_metallic_detected"
-            android:textSize="13sp"
+            android:text="@string/label_security"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
 
         <TextView
-            android:id="@+id/tvRecentDate"
+            android:id="@+id/tvGuardGate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textColor="@color/text_secondary" />
 
     </LinearLayout>
 
-    <!-- Harmful tag -->
+    <!-- On-duty tag -->
     <TextView
-        android:id="@+id/tvRecentTime"
+        android:id="@+id/tvGuardStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_harmful"
+        android:text="@string/status_on_duty"
         android:textSize="11sp"
         android:textStyle="bold"
-        android:textColor="@color/error"
-        android:background="@drawable/bg_tag_harmful"
+        android:textColor="@color/success"
+        android:background="@drawable/bg_tag_online"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="4dp"

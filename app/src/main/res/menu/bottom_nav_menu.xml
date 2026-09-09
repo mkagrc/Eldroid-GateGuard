@@ -7,13 +7,18 @@
         android:title="@string/nav_dashboard" />
 
     <item
-        android:id="@+id/nav_history"
-        android:icon="@drawable/ic_history"
-        android:title="@string/nav_history" />
+        android:id="@+id/nav_devices"
+        android:icon="@drawable/ic_device"
+        android:title="@string/nav_devices" />
 
     <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_person"
-        android:title="@string/nav_profile" />
+        android:id="@+id/nav_guards"
+        android:icon="@drawable/ic_guards"
+        android:title="@string/nav_guards" />
+
+    <item
+        android:id="@+id/nav_reports"
+        android:icon="@drawable/ic_reports"
+        android:title="@string/nav_reports" />
 
 </menu>

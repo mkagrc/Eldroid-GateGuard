@@ -6,6 +6,9 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_devices">Devices</string>
+    <string name="nav_guards">Security</string>
+    <string name="nav_reports">Reports</string>
 
     <!-- Dashboard -->
     <string name="label_admin_panel">Admin panel</string>
@@ -48,6 +51,15 @@
     <string name="btn_refresh">Refresh</string>
     <string name="btn_view_all">View all</string>
     <string name="no_recent_alerts">No detections recorded yet</string>
+    <string name="no_devices">No devices registered yet</string>
+    <string name="no_guards_on_duty">No security currently on duty</string>
+    <string name="label_guards_on_duty">Security on Duty</string>
+    <string name="label_security">Security</string>
+    <string name="label_handled_by">Handled by</string>
+    <string name="label_assigned_gate">Gate</string>
+    <string name="status_on_duty">On Duty</string>
+    <string name="status_off_duty">Off Duty</string>
+    <string name="status_loading">Loading…</string>
     <string name="btn_generate_report">Generate weekly report</string>
     <string name="report_summary">Weekly Report Summary\n\nTotal all-time detections: %1$d\nDetections this week: %2$d</string>
 

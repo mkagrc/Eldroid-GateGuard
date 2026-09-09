@@ -39,22 +39,25 @@ class HistoryActivity : AppCompatActivity() {
         loadDetections()
 
         // Bottom nav
-        binding.bottomNav.selectedItemId = R.id.nav_history
+        binding.bottomNav.selectedItemId = R.id.nav_reports
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> {
                     startActivity(Intent(this, MainActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
-                    true
+                    finish(); true
                 }
-                R.id.nav_history -> true
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, ProfileActivity::class.java))
+                R.id.nav_devices  -> {
+                    startActivity(Intent(this, DevicesActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
-                    true
+                    finish(); true
                 }
+                R.id.nav_guards   -> {
+                    startActivity(Intent(this, GuardsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    finish(); true
+                }
+                R.id.nav_reports  -> true
                 else -> false
             }
         }

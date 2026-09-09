@@ -68,7 +68,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNav() {
-        binding.bottomNav.selectedItemId = R.id.nav_profile
+        binding.bottomNav.selectedItemId = R.id.nav_dashboard
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> {
@@ -77,13 +77,9 @@ class ProfileActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-                R.id.nav_history -> {
-                    startActivity(Intent(this, HistoryActivity::class.java))
-                    overridePendingTransition(0, 0)
-                    finish()
-                    true
-                }
-                R.id.nav_profile -> true
+                R.id.nav_devices -> { finish(); true }
+                R.id.nav_guards  -> { finish(); true }
+                R.id.nav_reports -> { finish(); true }
                 else -> false
             }
         }
