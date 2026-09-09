@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF1A1A1A">
+
+    <!-- Pulsing red background circle -->
+    <View
+        android:id="@+id/viewPulseOuter"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:background="@drawable/bg_circle_error"
+        android:alpha="0.2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="120dp" />
+
+    <View
+        android:id="@+id/viewPulseInner"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_circle_error"
+        android:alpha="0.4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="120dp" />
+
+    <!-- Warning icon circle -->
+    <FrameLayout
+        android:id="@+id/frameIcon"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@drawable/bg_circle_error"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="120dp">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_warning_alert"
+            android:layout_gravity="center"
+            android:contentDescription="@string/alert_title" />
+    </FrameLayout>
+
+    <!-- ALERT label -->
+    <TextView
+        android:id="@+id/tvAlertLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/alert_label"
+        android:textSize="13sp"
+        android:textColor="#FF6B6B"
+        android:letterSpacing="0.3"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/frameIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Main alert title -->
+    <TextView
+        android:id="@+id/tvAlertTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:text="@string/alert_title"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/tvAlertLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Alert description -->
+    <TextView
+        android:id="@+id/tvAlertDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:text="@string/alert_description"
+        android:textSize="14sp"
+        android:textColor="#CCFFFFFF"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.4"
+        app:layout_constraintTop_toBottomOf="@id/tvAlertTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Detection info card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardDetectionInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="#FF2D2D2D"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tvAlertDescription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Time row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_detection_time"
+                    android:textSize="13sp"
+                    android:textColor="#999999" />
+                <TextView
+                    android:id="@+id/tvDetectionTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#FF3D3D3D"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Status row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_detection_status"
+                    android:textSize="13sp"
+                    android:textColor="#999999" />
+                <TextView
+                    android:id="@+id/tvDetectionStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_metallic_detected"
+                    android:textSize="13sp"
+                    android:textColor="#FF6B6B"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Dismiss button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDismiss"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/btn_dismiss"
+        android:textSize="15sp"
+        app:backgroundTint="#D32F2F"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toTopOf="@id/btnViewHistory"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- View History button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnViewHistory"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="40dp"
+        android:text="@string/btn_view_history"
+        android:textSize="15sp"
+        android:textColor="#FFFFFF"
+        app:strokeColor="#FFFFFF"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

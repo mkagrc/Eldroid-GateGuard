@@ -1,0 +1,178 @@
+<resources>
+    <string name="app_name">Eldroid</string>
+    <string name="app_logo_desc">App logo</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_history">History</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Dashboard -->
+    <string name="label_admin_panel">Admin panel</string>
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="greeting">Hello, %1$s</string>
+    <string name="label_school_system">School-wide system</string>
+    <string name="label_live_status">Live Detector Status</string>
+    <string name="label_status">Status</string>
+    <string name="label_total">All Time</string>
+    <string name="label_total_detections">Total detections</string>
+    <string name="label_cleared_safe">Cleared safe</string>
+    <string name="label_flagged_harmful">Flagged harmful</string>
+    <string name="label_harmful_reports">Harmful item reports</string>
+    <string name="label_devices_gates">Devices / Gates</string>
+    <string name="label_this_week">This Week</string>
+    <string name="label_recent_alerts">Recent Alerts</string>
+    <string name="label_device_info">Device Info</string>
+    <string name="label_device_name">Device Name</string>
+    <string name="label_connectivity">Connectivity</string>
+    <string name="label_last_sync">Last sync</string>
+    <string name="label_harmful">Harmful</string>
+    <string name="flagged_prefix">Flagged — </string>
+    <string name="device_name_default">Eldroid Detector Unit 1</string>
+    <string name="device_main_gate">Main Gate Scanner</string>
+    <string name="device_back_gate">Back Gate Scanner</string>
+    <string name="device_sub_connected">Wi-Fi · Connected</string>
+    <string name="device_sub_not_synced">Not synced in 2 hrs</string>
+    <string name="status_monitoring">Monitoring Active</string>
+    <string name="status_devices_online">Device Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_online">Online</string>
+    <string name="status_offline_tag">Offline</string>
+    <string name="last_sync_prefix">Last synced: </string>
+    <string name="sync_never">Never</string>
+    <string name="sync_1_min_ago">1 min ago</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_view_all">View all</string>
+    <string name="no_recent_alerts">No detections recorded yet</string>
+    <string name="btn_generate_report">Generate weekly report</string>
+    <string name="report_summary">Weekly Report Summary\n\nTotal all-time detections: %1$d\nDetections this week: %2$d</string>
+
+    <!-- Profile -->
+    <string name="label_personal_info">Personal Information</string>
+
+    <!-- Splash screen -->
+    <string name="splash_tagline">Smart Metallic Object Detection\nfor Safer Schools</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="splash_already_have">Already have an account? Log In</string>
+    <string name="splash_log_in_span">Log In</string>
+
+    <!-- Alert screen -->
+    <string name="alert_label">Security Alert</string>
+    <string name="alert_title">Metallic Object Detected!</string>
+    <string name="alert_description">A metallic object has been detected in a student\'s bag. Please conduct an immediate inspection.</string>
+    <string name="label_detection_time">Detection Time</string>
+    <string name="label_detection_status">Status</string>
+    <string name="status_metallic_detected">Metallic Object Detected</string>
+    <string name="btn_dismiss">Dismiss Alert</string>
+    <string name="btn_view_history">View Detection History</string>
+
+    <!-- History screen -->
+    <string name="history_title">Detection History</string>
+    <string name="history_empty">No detections recorded yet</string>
+    <string name="label_today">Today</string>
+    <string name="btn_clear_all">Clear All</string>
+    <string name="btn_clear_confirm">Clear</string>
+    <string name="dialog_clear_title">Clear All History</string>
+    <string name="dialog_clear_message">This will permanently delete all detection records. Are you sure?</string>
+    <string name="btn_history">Detection History</string>
+
+    <!-- Login screen -->
+    <string name="login_title">Welcome Back</string>
+        <string name="login_subtitle">Sign in to your account</string>
+    <string name="hint_email">Email address</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Sign In</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="go_to_signup">Don\'t have an account? Sign Up</string>
+    <string name="sign_up_span">Sign Up</string>
+
+    <!-- Signup screen -->
+    <string name="signup_title">Create Account</string>
+    <string name="signup_subtitle">Fill in all fields to register</string>
+    <string name="hint_first_name">First name</string>
+    <string name="hint_last_name">Last name</string>
+    <string name="hint_contact_number">Contact number (e.g. 09XXXXXXXXX)</string>
+    <string name="hint_address">Home address</string>
+    <string name="hint_confirm_password">Confirm password</string>
+    <string name="req_min_8_chars">At least 8 characters</string>
+    <string name="req_uppercase">At least 1 uppercase letter (A–Z)</string>
+    <string name="req_lowercase">At least 1 lowercase letter (a–z)</string>
+    <string name="req_digit">At least 1 number (0–9)</string>
+    <string name="req_special">At least 1 special character (!@#$%^&amp;*)</string>
+    <string name="btn_signup">Create Account</string>
+    <string name="go_to_login">Already have an account? Log In</string>
+    <string name="log_in_span">Log In</string>
+    <string name="back">Back</string>
+
+    <!-- Forgot Password screen -->
+    <string name="forgot_pw_title">Forgot Password</string>
+    <string name="forgot_pw_subtitle">Enter your registered email and we\'ll send you a reset link.</string>
+    <string name="btn_send_reset">Send Reset Link</string>
+    <string name="reset_success_title">Email Sent!</string>
+    <string name="reset_success_msg">A password reset link has been sent to your email. Check your inbox and follow the instructions.</string>
+    <string name="btn_back_to_login">Back to Login</string>
+
+    <!-- Change Password screen -->
+    <string name="change_pw_title">Change Password</string>
+    <string name="change_pw_subtitle">Enter your current password and choose a new one.</string>
+    <string name="hint_current_password">Current password</string>
+    <string name="hint_new_password">New password</string>
+    <string name="hint_confirm_new_password">Confirm new password</string>
+    <string name="btn_change_password">Update Password</string>
+    <string name="change_pw_success">Password updated successfully!</string>
+    <string name="error_same_password">New password must be different from current password</string>
+    <string name="error_current_password_empty">Current password is required</string>
+    <string name="error_reauthenticate">Current password is incorrect</string>
+
+    <!-- Main dashboard -->
+    <string name="placeholder_full_name">Example User</string>
+    <string name="placeholder_first_name" />
+    <string name="placeholder_last_name" />
+    <string name="placeholder_email" />
+    <string name="placeholder_contact" />
+    <string name="placeholder_address" />
+    <string name="label_first_name">First Name</string>
+    <string name="label_last_name">Last Name</string>
+    <string name="label_email">Email</string>
+    <string name="label_contact">Contact Number</string>
+    <string name="label_address">Address</string>
+    <string name="btn_logout">Sign Out</string>
+    <string name="default_user">User</string>
+    <string name="profile_icon_desc">Profile picture</string>
+
+    <!-- Forgot password -->
+    <string name="forgot_password_title">Reset Password</string>
+    <string name="forgot_password_message">Enter your email and we\'ll send a reset link.</string>
+    <string name="send_reset_link">Send Link</string>
+    <string name="reset_email_sent">Password reset link sent. Check your inbox.</string>
+
+    <!-- Validation errors -->
+    <string name="error_email_empty">Email address is required</string>
+    <string name="error_email_invalid">Enter a valid email address</string>
+    <string name="error_email_uppercase">Email must be in lowercase</string>
+    <string name="error_password_empty">Password is required</string>
+    <string name="error_password_short">Password must be at least 8 characters</string>
+    <string name="error_password_no_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="error_password_no_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="error_password_no_digit">Password must contain at least one number</string>
+    <string name="error_password_no_special">Password must contain at least one special character (!@#$%^&amp;*)</string>
+    <string name="error_confirm_password_empty">Please confirm your password</string>
+    <string name="error_passwords_mismatch">Passwords do not match</string>
+    <string name="error_first_name_empty">First name is required</string>
+    <string name="error_last_name_empty">Last name is required</string>
+    <string name="error_name_short">Must be at least 2 characters</string>
+    <string name="error_contact_empty">Contact number is required</string>
+    <string name="error_contact_invalid">Input a valid contact number</string>
+    <string name="error_address_empty">Address is required</string>
+
+    <!-- Firebase auth errors -->
+    <string name="error_user_not_found">No account found with this email</string>
+    <string name="error_wrong_credentials">Incorrect email or password</string>
+    <string name="error_email_in_use">An account already exists with this email</string>
+    <string name="error_password_weak">Password is too weak. Choose a stronger password</string>
+    <string name="error_generic">Something went wrong. Please try again</string>
+</resources>

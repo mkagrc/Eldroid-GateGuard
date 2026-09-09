@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "190468626545",
+    "project_id": "eldroid-3cb29",
+    "storage_bucket": "eldroid-3cb29.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190468626545:android:fa7cea468d0b54db3123d0",
+        "android_client_info": {
+          "package_name": "com.example.eldroid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDINiTRwSnHZiCGiEpC02mGUkG6iPkEEGg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

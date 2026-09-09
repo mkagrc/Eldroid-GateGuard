@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand: Teal Blue -->
+    <color name="primary">#00897B</color>
+    <color name="primary_dark">#00695C</color>
+    <color name="primary_light">#4DB6AC</color>
+
+    <!-- Semantic -->
+    <color name="error">#D32F2F</color>
+    <color name="success">#388E3C</color>
+
+    <!-- Backgrounds -->
+    <color name="background">#F0FAFA</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <!-- Misc -->
+    <color name="divider">#E5E7EB</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
