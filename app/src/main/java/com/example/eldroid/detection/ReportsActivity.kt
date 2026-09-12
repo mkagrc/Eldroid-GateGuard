@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.detection
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,11 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.eldroid.R
 import com.example.eldroid.databinding.ActivityReportsBinding
+import com.example.eldroid.dashboard.MainActivity
+import com.example.eldroid.devices.DevicesActivity
+import com.example.eldroid.security.GuardsActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -119,6 +123,11 @@ class ReportsActivity : AppCompatActivity() {
                     finish(); true
                 }
                 R.id.nav_reports  -> true
+                R.id.nav_profile  -> {
+                    startActivity(Intent(this, com.example.eldroid.profile.ProfileActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    finish(); true
+                }
                 else -> false
             }
         }

@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.alert
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.animation.ScaleAnimation
 import android.view.animation.AnimationSet
 import androidx.appcompat.app.AppCompatActivity
 import com.example.eldroid.databinding.ActivityAlertBinding
+import com.example.eldroid.detection.HistoryActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

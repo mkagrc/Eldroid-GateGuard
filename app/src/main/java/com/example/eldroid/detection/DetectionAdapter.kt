@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.detection
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,20 +13,20 @@ class DetectionAdapter(
 ) : RecyclerView.Adapter<DetectionAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle : TextView = view.findViewById(R.id.tvItemTitle)
-        val tvDate  : TextView = view.findViewById(R.id.tvItemDate)
-        val tvTime  : TextView = view.findViewById(R.id.tvItemTime)
+        val tvTitle : TextView = view.findViewById(com.example.eldroid.R.id.tvItemTitle)
+        val tvDate  : TextView = view.findViewById(com.example.eldroid.R.id.tvItemDate)
+        val tvTime  : TextView = view.findViewById(com.example.eldroid.R.id.tvItemTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_detection, parent, false)
+            .inflate(com.example.eldroid.R.layout.item_detection, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val record = items[position]
-        val date   = record.timestamp.toDate()
+        val date       = record.timestamp.toDate()
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
 

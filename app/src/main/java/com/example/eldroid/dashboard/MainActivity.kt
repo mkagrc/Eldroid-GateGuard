@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.dashboard
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,18 +9,26 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.eldroid.R
+import com.example.eldroid.alert.AlertActivity
+import com.example.eldroid.auth.LoginActivity
 import com.example.eldroid.databinding.ActivityMainBinding
-import com.google.firebase.Timestamp
+import com.example.eldroid.detection.HistoryActivity
+import com.example.eldroid.detection.ReportsActivity
+import com.example.eldroid.devices.DevicesActivity
+import com.example.eldroid.security.GuardsActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-// ── MVP: View interface ───────────────────────────────────────────────────────
 interface DashboardView {
     fun showGreeting(text: String)
     fun showSystemStatus(devicesOnlineText: String, lastSync: String, anyOnline: Boolean)
@@ -34,7 +42,6 @@ interface DashboardView {
     fun setRefreshing(isRefreshing: Boolean)
 }
 
-// ── Data models ───────────────────────────────────────────────────────────────
 data class HarmfulReport(
     val gate: String,
     val handledBy: String,
@@ -45,7 +52,7 @@ data class HarmfulReport(
 data class DeviceInfo(
     val name: String,
     val isOnline: Boolean,
-    val subInfo: String,     // e.g. "Wi-Fi · Connected" or "Not synced in 2 hrs"
+    val subInfo: String,
     val lastSyncTimestamp: Date?
 )
 
@@ -55,9 +62,9 @@ data class GuardInfo(
     val isOnDuty: Boolean
 )
 
-// ── MVP: Presenter ────────────────────────────────────────────────────────────
 class DashboardPresenter(
     private val db: FirebaseFirestore,
+    private val rtdb: FirebaseDatabase,
     private val view: DashboardView
 ) {
     private val dateTimeFmt = SimpleDateFormat("MMM d · hh:mm a", Locale.getDefault())
@@ -72,79 +79,48 @@ class DashboardPresenter(
         loadGuards()
     }
 
-    // ── Devices — source of truth for both banner and device list ──────────────
     private fun loadDevices(onComplete: (() -> Unit)? = null) {
-        db.collection("devices")
+        rtdb.getReference("device-status")
             .get()
             .addOnSuccessListener { snapshot ->
-                val devices = snapshot.documents.mapNotNull { doc ->
-                    val name     = doc.getString("name") ?: return@mapNotNull null
-                    val isOnline = doc.getBoolean("isOnline") ?: false
-                    val connType = doc.getString("connectionType") ?: "Wi-Fi"
-                    val lastSync = doc.getTimestamp("lastSync")?.toDate()
-                    val subInfo  = if (isOnline) {
-                        "$connType · Connected"
-                    } else {
-                        lastSync?.let { "Not synced since ${syncFmt.format(it)}" }
-                            ?: "Never synced"
-                    }
-                    DeviceInfo(name, isOnline, subInfo, lastSync)
+                val devices = mutableListOf<DeviceInfo>()
+                for (child in snapshot.children) {
+                    val name       = child.key ?: continue
+                    val isOnline   = child.child("isOnline").getValue(Boolean::class.java) ?: false
+                    val connType   = child.child("connectionType").getValue(String::class.java) ?: "Wi-Fi"
+                    val lastSeenMs = child.child("lastSeen").getValue(Long::class.java)
+                    val lastSync   = lastSeenMs?.let { Date(it) }
+                    val subInfo    = if (isOnline) "$connType · Connected"
+                    else lastSync?.let { "Not synced since ${syncFmt.format(it)}" } ?: "Never synced"
+                    devices.add(DeviceInfo(name, isOnline, subInfo, lastSync))
                 }
-
-                // Banner: count online vs total (same data, no duplication)
                 val onlineCount = devices.count { it.isOnline }
                 val totalCount  = devices.size
                 val latestSync  = devices.mapNotNull { it.lastSyncTimestamp }
-                    .maxOrNull()
-                    ?.let { syncFmt.format(it) } ?: "—"
-
-                val bannerText = if (totalCount == 0) {
-                    "No devices registered"
-                } else {
-                    "$onlineCount of $totalCount devices online"
-                }
-
+                    .maxOrNull()?.let { syncFmt.format(it) } ?: "—"
+                val bannerText  = if (totalCount == 0) "No devices registered"
+                else "$onlineCount of $totalCount devices online"
                 view.showSystemStatus(bannerText, latestSync, onlineCount > 0)
-
-                if (devices.isEmpty()) view.showNoDevices()
-                else view.showDevices(devices.take(3))
-
+                if (devices.isEmpty()) view.showNoDevices() else view.showDevices(devices.take(3))
                 onComplete?.invoke()
             }
             .addOnFailureListener { onComplete?.invoke() }
     }
 
-    // ── Stats — filtered by resolution status field ────────────────────────────
-    fun loadStats() {
+    private fun loadStats() {
         db.collection("detections")
-            .whereNotEqualTo("status", "trigger") // exclude trigger doc
             .get()
-            .addOnSuccessListener { snapshot ->
-                val docs = snapshot.documents.filter { it.id != "trigger" }
+            .addOnSuccessListener { snap ->
+                val docs    = snap.documents.filter { it.id != "trigger" }
                 val total   = docs.size
-                val flagged = docs.count {
-                    (it.getString("resolution") ?: "").equals("Harmful", ignoreCase = true)
-                }
-                val cleared = docs.count {
-                    (it.getString("resolution") ?: "").equals("Not Harmful", ignoreCase = true)
-                }
+                val flagged = docs.count { (it.getString("resolution") ?: "").equals("Harmful", ignoreCase = true) }
+                val cleared = docs.count { (it.getString("resolution") ?: "").equals("Not Harmful", ignoreCase = true) }
                 view.showStats(total, cleared, flagged)
             }
-            .addOnFailureListener {
-                // Fall back — count from all docs
-                db.collection("detections").get().addOnSuccessListener { snap ->
-                    val docs    = snap.documents.filter { it.id != "trigger" }
-                    val total   = docs.size
-                    val flagged = docs.count {
-                        (it.getString("status") ?: "").contains("Metallic", ignoreCase = true)
-                    }
-                    view.showStats(total, total - flagged, flagged)
-                }
-            }
+            .addOnFailureListener { view.showStats(0, 0, 0) }
     }
 
-    // ── Harmful reports — detections resolved as Harmful ──────────────────────
-    fun loadHarmfulReports() {
+    private fun loadHarmfulReports() {
         db.collection("detections")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(3)
@@ -156,46 +132,40 @@ class DashboardPresenter(
                         val ts        = doc.getTimestamp("timestamp")?.toDate() ?: return@mapNotNull null
                         val gate      = doc.getString("gate") ?: "Unknown Gate"
                         val handledBy = doc.getString("handledBy") ?: "—"
-                        HarmfulReport(
-                            gate      = gate,
-                            handledBy = handledBy,
-                            dateTime  = dateTimeFmt.format(ts),
-                            docId     = doc.id
-                        )
+                        HarmfulReport(gate, handledBy, dateTimeFmt.format(ts), doc.id)
                     }
-                if (reports.isEmpty()) view.showNoReports()
-                else view.showHarmfulReports(reports)
+                if (reports.isEmpty()) view.showNoReports() else view.showHarmfulReports(reports)
             }
             .addOnFailureListener { view.showNoReports() }
     }
 
-    // ── Guards on duty ─────────────────────────────────────────────────────────
-    fun loadGuards() {
-        db.collection("guards")
-            .whereEqualTo("onDuty", true)
+    private fun loadGuards() {
+        rtdb.getReference("guards")
+            .orderByChild("onDuty")
+            .equalTo(true)
             .get()
             .addOnSuccessListener { snapshot ->
-                val guards = snapshot.documents.mapNotNull { doc ->
-                    val name  = doc.getString("name") ?: return@mapNotNull null
-                    val gate  = doc.getString("assignedGate") ?: "Unassigned"
-                    GuardInfo(name, gate, true)
+                val guards = mutableListOf<GuardInfo>()
+                for (child in snapshot.children) {
+                    val gate   = child.child("assignedGate").getValue(String::class.java) ?: "Unassigned"
+                    val onDuty = child.child("onDuty").getValue(Boolean::class.java) ?: false
+                    guards.add(GuardInfo("Security", gate, onDuty))
                 }
-                if (guards.isEmpty()) view.showNoGuards()
-                else view.showGuards(guards.take(3))
+                if (guards.isEmpty()) view.showNoGuards() else view.showGuards(guards.take(3))
             }
             .addOnFailureListener { view.showNoGuards() }
     }
 }
 
-// ── View (Activity) ───────────────────────────────────────────────────────────
 class MainActivity : AppCompatActivity(), DashboardView {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private lateinit var rtdb: FirebaseDatabase
     private lateinit var presenter: DashboardPresenter
 
-    private var detectionListener: ListenerRegistration? = null
+    private var rtdbTriggerListener: ValueEventListener? = null
     private var alertShowing = false
 
     private val greetingHandler  = Handler(Looper.getMainLooper())
@@ -206,20 +176,15 @@ class MainActivity : AppCompatActivity(), DashboardView {
         }
     }
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         auth = FirebaseAuth.getInstance()
         db   = FirebaseFirestore.getInstance()
-
+        rtdb = FirebaseDatabase.getInstance()
         if (auth.currentUser == null) { goToLogin(); return }
-
         binding   = ActivityMainBinding.inflate(layoutInflater)
-        presenter = DashboardPresenter(db, this)
+        presenter = DashboardPresenter(db, rtdb, this)
         setContentView(binding.root)
-
         setupBottomNav()
         setupSwipeRefresh()
         setupClickListeners()
@@ -237,58 +202,46 @@ class MainActivity : AppCompatActivity(), DashboardView {
     override fun onPause() {
         super.onPause()
         greetingHandler.removeCallbacks(greetingRunnable)
-        detectionListener?.remove()
-        detectionListener = null
+        rtdbTriggerListener?.let { rtdb.getReference("trigger").removeEventListener(it) }
+        rtdbTriggerListener = null
     }
 
-    // ── Load / refresh ────────────────────────────────────────────────────────
+    private fun startDetectionListener() {
+        rtdbTriggerListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val detected = snapshot.child("detected").getValue(Boolean::class.java) ?: false
+                if (detected && !alertShowing) {
+                    alertShowing = true
+                    rtdb.getReference("trigger").child("detected").setValue(false)
+                    startActivity(Intent(this@MainActivity, AlertActivity::class.java))
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        rtdb.getReference("trigger").addValueEventListener(rtdbTriggerListener!!)
+    }
 
     private fun loadDashboard() {
         val user        = auth.currentUser ?: return
-        val displayName = user.displayName?.ifBlank { null }
-            ?: user.email
-            ?: getString(R.string.default_user)
+        val displayName = user.displayName?.ifBlank { null } ?: user.email ?: getString(R.string.default_user)
         presenter.loadAll(displayName, getTimeGreeting())
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setColorSchemeColors(
-            ContextCompat.getColor(this, R.color.primary)
-        )
+        binding.swipeRefresh.setColorSchemeColors(ContextCompat.getColor(this, R.color.primary))
         binding.swipeRefresh.setOnRefreshListener { loadDashboard() }
     }
 
     private fun setupClickListeners() {
-        binding.cardStatTotal.setOnClickListener   { openHistory() }
-        binding.cardStatCleared.setOnClickListener { openHistory() }
-        binding.cardStatFlagged.setOnClickListener { openHistory() }
+        binding.cardStatTotal.setOnClickListener    { openHistory() }
+        binding.cardStatCleared.setOnClickListener  { openHistory() }
+        binding.cardStatFlagged.setOnClickListener  { openHistory() }
         binding.tvViewAllReports.setOnClickListener { openHistory() }
         binding.tvViewAllDevices.setOnClickListener { openHistory() }
-        binding.tvViewAllGuards.setOnClickListener  { /* future: Guards screen */ }
+        binding.tvViewAllGuards.setOnClickListener  {}
     }
 
-    // ── IoT real-time listener ─────────────────────────────────────────────────
-
-    private fun startDetectionListener() {
-        detectionListener = db.collection("detections")
-            .document("trigger")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null) return@addSnapshotListener
-                val detected = snapshot.getBoolean("detected") ?: false
-                if (detected && !alertShowing) {
-                    alertShowing = true
-                    db.collection("detections").document("trigger")
-                        .update("detected", false)
-                    startActivity(Intent(this, AlertActivity::class.java))
-                }
-            }
-    }
-
-    // ── DashboardView implementation ──────────────────────────────────────────
-
-    override fun showGreeting(text: String) {
-        binding.tvGreeting.text = text
-    }
+    override fun showGreeting(text: String) { binding.tvGreeting.text = text }
 
     override fun showSystemStatus(devicesOnlineText: String, lastSync: String, anyOnline: Boolean) {
         binding.tvDevicesOnline.text = devicesOnlineText
@@ -307,20 +260,15 @@ class MainActivity : AppCompatActivity(), DashboardView {
     override fun showHarmfulReports(reports: List<HarmfulReport>) {
         binding.tvNoRecentAlerts.visibility = View.GONE
         binding.layoutRecentDetections.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-
+        val inflater   = LayoutInflater.from(this)
+        val handledStr = getString(R.string.label_handled_by)
         reports.forEachIndexed { index, report ->
-            val row = inflater.inflate(
-                R.layout.item_recent_detection,
-                binding.layoutRecentDetections, false
-            )
+            val row = inflater.inflate(R.layout.item_recent_detection, binding.layoutRecentDetections, false)
             row.findViewById<TextView>(R.id.tvRecentStatus).text =
                 getString(R.string.flagged_prefix) + report.gate
             row.findViewById<TextView>(R.id.tvRecentDate).text =
-                "${report.dateTime} · ${getString(R.string.label_handled_by)} ${report.handledBy}"
-
+                "${report.dateTime} · $handledStr ${report.handledBy}"
             binding.layoutRecentDetections.addView(row)
-
             if (index < reports.size - 1) addDivider(binding.layoutRecentDetections)
         }
     }
@@ -333,31 +281,26 @@ class MainActivity : AppCompatActivity(), DashboardView {
     override fun showDevices(devices: List<DeviceInfo>) {
         binding.tvNoDevices.visibility = View.GONE
         binding.layoutDevices.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-
+        val inflater   = LayoutInflater.from(this)
+        val onlineStr  = getString(R.string.status_online)
+        val offlineStr = getString(R.string.status_offline_tag)
         devices.forEachIndexed { index, device ->
-            val row = inflater.inflate(
-                R.layout.item_device_row,
-                binding.layoutDevices, false
-            )
-            row.findViewById<TextView>(R.id.tvDeviceName).text = device.name
-            row.findViewById<TextView>(R.id.tvDeviceSub).text  = device.subInfo
-
+            val row      = inflater.inflate(R.layout.item_device_row, binding.layoutDevices, false)
             val statusTv = row.findViewById<TextView>(R.id.tvDeviceStatus)
             val dotView  = row.findViewById<View>(R.id.viewDeviceDot)
-
+            row.findViewById<TextView>(R.id.tvDeviceName).text = device.name
+            row.findViewById<TextView>(R.id.tvDeviceSub).text  = device.subInfo
             if (device.isOnline) {
-                statusTv.text = getString(R.string.status_online)
+                statusTv.text = onlineStr
                 statusTv.setTextColor(ContextCompat.getColor(this, R.color.success))
                 statusTv.setBackgroundResource(R.drawable.bg_tag_online)
                 dotView.setBackgroundResource(R.drawable.bg_status_active)
             } else {
-                statusTv.text = getString(R.string.status_offline_tag)
+                statusTv.text = offlineStr
                 statusTv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
                 statusTv.setBackgroundResource(R.drawable.bg_tag_offline)
                 dotView.setBackgroundResource(R.drawable.bg_status_offline)
             }
-
             binding.layoutDevices.addView(row)
             if (index < devices.size - 1) addDivider(binding.layoutDevices)
         }
@@ -371,20 +314,16 @@ class MainActivity : AppCompatActivity(), DashboardView {
     override fun showGuards(guards: List<GuardInfo>) {
         binding.tvNoGuards.visibility = View.GONE
         binding.layoutGuards.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-
+        val inflater    = LayoutInflater.from(this)
+        val gateLabel   = getString(R.string.label_assigned_gate)
+        val onDutyStr   = getString(R.string.status_on_duty)
+        val offDutyStr  = getString(R.string.status_off_duty)
+        val securityStr = getString(R.string.label_security)
         guards.forEachIndexed { index, guard ->
-            val row = inflater.inflate(
-                R.layout.item_guard_row,
-                binding.layoutGuards, false
-            )
-            row.findViewById<TextView>(R.id.tvGuardName).text  = getString(R.string.label_security)
-            row.findViewById<TextView>(R.id.tvGuardGate).text  =
-                "${getString(R.string.label_assigned_gate)}: ${guard.assignedGate}"
-            row.findViewById<TextView>(R.id.tvGuardStatus).text =
-                if (guard.isOnDuty) getString(R.string.status_on_duty)
-                else getString(R.string.status_off_duty)
-
+            val row = inflater.inflate(R.layout.item_guard_row, binding.layoutGuards, false)
+            row.findViewById<TextView>(R.id.tvGuardName).text   = securityStr
+            row.findViewById<TextView>(R.id.tvGuardGate).text   = "$gateLabel: ${guard.assignedGate}"
+            row.findViewById<TextView>(R.id.tvGuardStatus).text = if (guard.isOnDuty) onDutyStr else offDutyStr
             binding.layoutGuards.addView(row)
             if (index < guards.size - 1) addDivider(binding.layoutGuards)
         }
@@ -399,8 +338,6 @@ class MainActivity : AppCompatActivity(), DashboardView {
         binding.swipeRefresh.isRefreshing = isRefreshing
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private fun addDivider(container: android.widget.LinearLayout) {
         val divider = View(this)
         divider.layoutParams = android.widget.LinearLayout.LayoutParams(
@@ -412,9 +349,7 @@ class MainActivity : AppCompatActivity(), DashboardView {
 
     private fun refreshGreeting() {
         val user        = auth.currentUser ?: return
-        val displayName = user.displayName?.ifBlank { null }
-            ?: user.email
-            ?: getString(R.string.default_user)
+        val displayName = user.displayName?.ifBlank { null } ?: user.email ?: getString(R.string.default_user)
         binding.tvGreeting.text = "${getTimeGreeting()}, $displayName"
     }
 
@@ -434,21 +369,10 @@ class MainActivity : AppCompatActivity(), DashboardView {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> true
-                R.id.nav_devices   -> {
-                    startActivity(Intent(this, DevicesActivity::class.java))
-                    overridePendingTransition(0, 0)
-                    true
-                }
-                R.id.nav_guards    -> {
-                    startActivity(Intent(this, GuardsActivity::class.java))
-                    overridePendingTransition(0, 0)
-                    true
-                }
-                R.id.nav_reports   -> {
-                    startActivity(Intent(this, ReportsActivity::class.java))
-                    overridePendingTransition(0, 0)
-                    true
-                }
+                R.id.nav_devices   -> { startActivity(Intent(this, DevicesActivity::class.java)); true }
+                R.id.nav_guards    -> { startActivity(Intent(this, GuardsActivity::class.java)); true }
+                R.id.nav_reports   -> { startActivity(Intent(this, ReportsActivity::class.java)); true }
+                R.id.nav_profile   -> { startActivity(Intent(this, com.example.eldroid.profile.ProfileActivity::class.java)); true }
                 else -> false
             }
         }

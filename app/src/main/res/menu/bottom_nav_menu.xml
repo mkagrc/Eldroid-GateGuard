@@ -21,4 +21,9 @@
         android:icon="@drawable/ic_reports"
         android:title="@string/nav_reports" />
 
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/nav_profile" />
+
 </menu>

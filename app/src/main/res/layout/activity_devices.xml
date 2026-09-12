@@ -41,12 +41,6 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/ic_device"
-                android:alpha="0.25"
-                android:contentDescription="@string/nav_devices" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -70,6 +64,6 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
-        app:labelVisibilityMode="labeled" />
+        app:labelVisibilityMode="unlabeled" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

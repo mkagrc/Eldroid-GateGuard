@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.forgotpass
 
 import android.os.Bundle
 import android.text.Editable
@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.eldroid.R
 import com.example.eldroid.databinding.ActivityChangePasswordBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.EmailAuthProvider
@@ -15,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 
 class ChangePasswordActivity : AppCompatActivity() {
 
-    // ── MVP: View ─────────────────────────────────────────────────────────────
     private lateinit var binding: ActivityChangePasswordBinding
     private lateinit var presenter: ChangePasswordPresenter
 
@@ -40,7 +40,6 @@ class ChangePasswordActivity : AppCompatActivity() {
         }
     }
 
-    // ── Live requirement indicators for new password ───────────────────────────
     private fun setupPasswordWatcher() {
         binding.etNewPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
@@ -67,8 +66,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                 ContextCompat.getDrawable(this, R.drawable.ic_dot), null, null, null)
         }
     }
-
-    // ── View interface methods called by Presenter ────────────────────────────
 
     fun showCurrentPasswordError(msg: String) { binding.tilCurrentPassword.error = msg }
     fun showNewPasswordError(msg: String)     { binding.tilNewPassword.error = msg }
@@ -108,7 +105,6 @@ class ChangePasswordActivity : AppCompatActivity() {
     }
 }
 
-// ── MVP Presenter ─────────────────────────────────────────────────────────────
 class ChangePasswordPresenter(
     private val auth: FirebaseAuth,
     private val view: ChangePasswordActivity

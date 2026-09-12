@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.auth
 
 import android.content.Intent
 import android.graphics.Typeface
@@ -14,17 +14,19 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.eldroid.R
 import com.example.eldroid.databinding.ActivitySignupBinding
+import com.example.eldroid.dashboard.MainActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SignupActivity : AppCompatActivity() {
 
-    // ── MVP: View ─────────────────────────────────────────────────────────────
     private lateinit var binding: ActivitySignupBinding
     private lateinit var presenter: SignupPresenter
 
@@ -34,9 +36,12 @@ class SignupActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         presenter = SignupPresenter(
-            FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
-            this
+            auth = FirebaseAuth.getInstance(),
+            db   = FirebaseFirestore.getInstance(),
+            rtdb = FirebaseDatabase.getInstance(
+                "https://eldroid-3cb29-default-rtdb.asia-southeast1.firebasedatabase.app"
+            ),
+            view = this
         )
 
         setupPasswordWatcher()
@@ -44,14 +49,13 @@ class SignupActivity : AppCompatActivity() {
         styleLoginPrompt()
     }
 
-    // ── Live password requirement indicators ──────────────────────────────────
     private fun setupPasswordWatcher() {
         binding.etPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val pw = s.toString()
-                setReq(binding.tvReqLength,   pw.length >= 8)
+                setReq(binding.tvReqLength,    pw.length >= 8)
                 setReq(binding.tvReqUppercase, pw.any { it.isUpperCase() })
                 setReq(binding.tvReqLowercase, pw.any { it.isLowerCase() })
                 setReq(binding.tvReqDigit,     pw.any { it.isDigit() })
@@ -78,13 +82,13 @@ class SignupActivity : AppCompatActivity() {
         binding.btnSignup.setOnClickListener {
             clearErrors()
             presenter.register(
-                firstName   = binding.etFirstName.text.toString().trim(),
-                lastName    = binding.etLastName.text.toString().trim(),
-                contact     = binding.etContactNumber.text.toString().trim(),
-                address     = binding.etAddress.text.toString().trim(),
-                email       = binding.etEmail.text.toString().trim(),
-                password    = binding.etPassword.text.toString(),
-                confirmPw   = binding.etConfirmPassword.text.toString()
+                firstName = binding.etFirstName.text.toString().trim(),
+                lastName  = binding.etLastName.text.toString().trim(),
+                contact   = binding.etContactNumber.text.toString().trim(),
+                address   = binding.etAddress.text.toString().trim(),
+                email     = binding.etEmail.text.toString().trim(),
+                password  = binding.etPassword.text.toString(),
+                confirmPw = binding.etConfirmPassword.text.toString()
             )
         }
 
@@ -94,14 +98,12 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
-    // ── View interface methods called by Presenter ────────────────────────────
-
-    fun showFirstNameError(msg: String)    { binding.tilFirstName.error = msg }
-    fun showLastNameError(msg: String)     { binding.tilLastName.error = msg }
-    fun showContactError(msg: String)      { binding.tilContactNumber.error = msg }
-    fun showAddressError(msg: String)      { binding.tilAddress.error = msg }
-    fun showEmailError(msg: String)        { binding.tilEmail.error = msg }
-    fun showPasswordError(msg: String)     { binding.tilPassword.error = msg }
+    fun showFirstNameError(msg: String)       { binding.tilFirstName.error = msg }
+    fun showLastNameError(msg: String)        { binding.tilLastName.error = msg }
+    fun showContactError(msg: String)         { binding.tilContactNumber.error = msg }
+    fun showAddressError(msg: String)         { binding.tilAddress.error = msg }
+    fun showEmailError(msg: String)           { binding.tilEmail.error = msg }
+    fun showPasswordError(msg: String)        { binding.tilPassword.error = msg }
     fun showConfirmPasswordError(msg: String) { binding.tilConfirmPassword.error = msg }
 
     fun clearErrors() {
@@ -157,10 +159,12 @@ class SignupActivity : AppCompatActivity() {
     }
 }
 
-// ── MVP Presenter ─────────────────────────────────────────────────────────────
+// Public signup always creates an Admin account.
+// Security accounts are created by the admin from within the app.
 class SignupPresenter(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
+    private val rtdb: FirebaseDatabase,
     private val view: SignupActivity
 ) {
     fun register(
@@ -175,49 +179,78 @@ class SignupPresenter(
         if (!validateInputs(firstName, lastName, contact, address, email, password, confirmPw)) return
 
         val displayName = "$firstName $lastName"
+        val role        = "Admin"   // public signup always creates Admin
         view.setLoading(true)
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val uid = auth.currentUser!!.uid
-                    val profileUpdates = UserProfileChangeRequest.Builder()
-                        .setDisplayName(displayName).build()
-
-                    auth.currentUser!!.updateProfile(profileUpdates)
-                        .addOnCompleteListener {
-                            val userDoc = hashMapOf(
-                                "uid"           to uid,
-                                "firstName"     to firstName,
-                                "lastName"      to lastName,
-                                "displayName"   to displayName,
-                                "email"         to email,
-                                "contactNumber" to contact,
-                                "address"       to address
-                            )
-                            db.collection("users").document(uid)
-                                .set(userDoc)
-                                .addOnSuccessListener {
-                                    view.setLoading(false)
-                                    view.navigateToMain()
-                                }
-                                .addOnFailureListener {
-                                    view.setLoading(false)
-                                    view.navigateToMain()
-                                }
-                        }
+                    auth.currentUser!!.updateProfile(
+                        UserProfileChangeRequest.Builder().setDisplayName(displayName).build()
+                    ).addOnCompleteListener {
+                        saveUser(uid, firstName, lastName, displayName, email, contact, address, role)
+                    }
                 } else {
                     view.setLoading(false)
                     val msg = when (task.exception) {
-                        is FirebaseAuthUserCollisionException ->
-                            view.getString(R.string.error_email_in_use)
-                        is FirebaseAuthWeakPasswordException ->
-                            view.getString(R.string.error_password_weak)
-                        else -> task.exception?.localizedMessage
-                            ?: view.getString(R.string.error_generic)
+                        is FirebaseAuthUserCollisionException -> view.getString(R.string.error_email_in_use)
+                        is FirebaseAuthWeakPasswordException  -> view.getString(R.string.error_password_weak)
+                        else -> task.exception?.localizedMessage ?: view.getString(R.string.error_generic)
                     }
                     view.showError(msg)
                 }
+            }
+    }
+
+    fun saveUser(
+        uid: String,
+        firstName: String,
+        lastName: String,
+        displayName: String,
+        email: String,
+        contact: String,
+        address: String,
+        role: String
+    ) {
+        // 1 — Firestore: full profile
+        val firestoreDoc = hashMapOf(
+            "uid"           to uid,
+            "firstName"     to firstName,
+            "lastName"      to lastName,
+            "displayName"   to displayName,
+            "email"         to email,
+            "contactNumber" to contact,
+            "address"       to address,
+            "role"          to role
+        )
+        db.collection("users").document(uid).set(firestoreDoc)
+
+        // 2 — Realtime Database: /users/{role}/{uid}
+        val rtdbUser = mapOf(
+            "uid"         to uid,
+            "displayName" to displayName,
+            "firstName"   to firstName,
+            "lastName"    to lastName,
+            "email"       to email,
+            "contact"     to contact,
+            "address"     to address,
+            "role"        to role,
+            "createdAt"   to System.currentTimeMillis()
+        )
+        rtdb.getReference("users")
+            .child(role.lowercase())   // /users/admin/{uid} or /users/security/{uid}
+            .child(uid)
+            .setValue(rtdbUser)
+            .addOnSuccessListener {
+                android.util.Log.d("RTDB", "$role user saved: $uid")
+                view.setLoading(false)
+                view.navigateToMain()
+            }
+            .addOnFailureListener { e ->
+                android.util.Log.e("RTDB", "Failed: ${e.message}")
+                view.setLoading(false)
+                view.navigateToMain()
             }
     }
 
@@ -227,50 +260,36 @@ class SignupPresenter(
     ): Boolean {
         var valid = true
 
-        // First name
         when {
-            firstName.isEmpty() -> { view.showFirstNameError(view.getString(R.string.error_first_name_empty)); valid = false }
-            firstName.length < 2 -> { view.showFirstNameError(view.getString(R.string.error_name_short)); valid = false }
+            firstName.isEmpty()   -> { view.showFirstNameError(view.getString(R.string.error_first_name_empty)); valid = false }
+            firstName.length < 2  -> { view.showFirstNameError(view.getString(R.string.error_name_short)); valid = false }
         }
-
-        // Last name
         when {
-            lastName.isEmpty() -> { view.showLastNameError(view.getString(R.string.error_last_name_empty)); valid = false }
-            lastName.length < 2 -> { view.showLastNameError(view.getString(R.string.error_name_short)); valid = false }
+            lastName.isEmpty()    -> { view.showLastNameError(view.getString(R.string.error_last_name_empty)); valid = false }
+            lastName.length < 2   -> { view.showLastNameError(view.getString(R.string.error_name_short)); valid = false }
         }
-
-        // Contact — must start with 09, exactly 11 digits
         when {
-            contact.isEmpty() -> { view.showContactError(view.getString(R.string.error_contact_empty)); valid = false }
+            contact.isEmpty()     -> { view.showContactError(view.getString(R.string.error_contact_empty)); valid = false }
             !contact.matches(Regex("^09[0-9]{9}$")) -> { view.showContactError(view.getString(R.string.error_contact_invalid)); valid = false }
         }
-
-        // Address
         if (address.isEmpty()) { view.showAddressError(view.getString(R.string.error_address_empty)); valid = false }
-
-        // Email — lowercase only, valid format
         when {
-            email.isEmpty() -> { view.showEmailError(view.getString(R.string.error_email_empty)); valid = false }
+            email.isEmpty()       -> { view.showEmailError(view.getString(R.string.error_email_empty)); valid = false }
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> { view.showEmailError(view.getString(R.string.error_email_invalid)); valid = false }
             email.any { it.isUpperCase() } -> { view.showEmailError(view.getString(R.string.error_email_uppercase)); valid = false }
         }
-
-        // Password — all 5 complexity rules
         when {
-            password.isEmpty() -> { view.showPasswordError(view.getString(R.string.error_password_empty)); valid = false }
-            password.length < 8 -> { view.showPasswordError(view.getString(R.string.error_password_short)); valid = false }
+            password.isEmpty()    -> { view.showPasswordError(view.getString(R.string.error_password_empty)); valid = false }
+            password.length < 8   -> { view.showPasswordError(view.getString(R.string.error_password_short)); valid = false }
             !password.any { it.isUpperCase() } -> { view.showPasswordError(view.getString(R.string.error_password_no_uppercase)); valid = false }
             !password.any { it.isLowerCase() } -> { view.showPasswordError(view.getString(R.string.error_password_no_lowercase)); valid = false }
-            !password.any { it.isDigit() } -> { view.showPasswordError(view.getString(R.string.error_password_no_digit)); valid = false }
+            !password.any { it.isDigit() }     -> { view.showPasswordError(view.getString(R.string.error_password_no_digit)); valid = false }
             !password.any { it in "!@#\$%^&*()_+-=[]{}|;':\",./<>?" } -> { view.showPasswordError(view.getString(R.string.error_password_no_special)); valid = false }
         }
-
-        // Confirm password
         when {
-            confirmPw.isEmpty() -> { view.showConfirmPasswordError(view.getString(R.string.error_confirm_password_empty)); valid = false }
+            confirmPw.isEmpty()   -> { view.showConfirmPasswordError(view.getString(R.string.error_confirm_password_empty)); valid = false }
             password != confirmPw -> { view.showConfirmPasswordError(view.getString(R.string.error_passwords_mismatch)); valid = false }
         }
-
         return valid
     }
 }

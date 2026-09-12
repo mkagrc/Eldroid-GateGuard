@@ -63,7 +63,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:hint="@string/hint_email"
-            app:startIconDrawable="@android:drawable/ic_dialog_email"
             app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -85,7 +84,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="@string/hint_password"
-            app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
             app:endIconMode="password_toggle"
             app:layout_constraintTop_toBottomOf="@id/tilEmail"
             app:layout_constraintStart_toStartOf="parent"

@@ -1,10 +1,14 @@
-package com.example.eldroid
+package com.example.eldroid.profile
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.eldroid.R
 import com.example.eldroid.databinding.ActivityProfileBinding
+import com.example.eldroid.dashboard.MainActivity
+import com.example.eldroid.forgotpass.ChangePasswordActivity
+import com.example.eldroid.auth.LoginActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
@@ -68,18 +72,30 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNav() {
-        binding.bottomNav.selectedItemId = R.id.nav_dashboard
+        binding.bottomNav.selectedItemId = R.id.nav_profile
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> {
                     startActivity(Intent(this, MainActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
-                    true
+                    finish(); true
                 }
-                R.id.nav_devices -> { finish(); true }
-                R.id.nav_guards  -> { finish(); true }
-                R.id.nav_reports -> { finish(); true }
+                R.id.nav_devices -> {
+                    startActivity(Intent(this, com.example.eldroid.devices.DevicesActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    finish(); true
+                }
+                R.id.nav_guards  -> {
+                    startActivity(Intent(this, com.example.eldroid.security.GuardsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    finish(); true
+                }
+                R.id.nav_reports -> {
+                    startActivity(Intent(this, com.example.eldroid.detection.ReportsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    finish(); true
+                }
+                R.id.nav_profile -> true
                 else -> false
             }
         }

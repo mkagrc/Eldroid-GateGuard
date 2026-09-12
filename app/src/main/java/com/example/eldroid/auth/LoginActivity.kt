@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.auth
 
 import android.content.Intent
 import android.graphics.Typeface
@@ -11,7 +11,10 @@ import android.util.Patterns
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.eldroid.R
 import com.example.eldroid.databinding.ActivityLoginBinding
+import com.example.eldroid.dashboard.MainActivity
+import com.example.eldroid.forgotpass.ForgotPasswordActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -19,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class LoginActivity : AppCompatActivity() {
 
-    // ── MVP: View binds to Presenter ─────────────────────────────────────────
     private lateinit var binding: ActivityLoginBinding
     private lateinit var presenter: LoginPresenter
 
@@ -51,8 +53,6 @@ class LoginActivity : AppCompatActivity() {
             overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         }
     }
-
-    // ── View interface methods called by Presenter ────────────────────────────
 
     fun showEmailError(msg: String)    { binding.tilEmail.error = msg }
     fun showPasswordError(msg: String) { binding.tilPassword.error = msg }
@@ -89,8 +89,6 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    // ── Span styling ──────────────────────────────────────────────────────────
-
     private fun styleSignupPrompt() {
         val fullText  = getString(R.string.go_to_signup)
         val spannable = SpannableString(fullText)
@@ -107,7 +105,6 @@ class LoginActivity : AppCompatActivity() {
     }
 }
 
-// ── MVP Presenter ─────────────────────────────────────────────────────────────
 class LoginPresenter(
     private val auth: FirebaseAuth,
     private val view: LoginActivity

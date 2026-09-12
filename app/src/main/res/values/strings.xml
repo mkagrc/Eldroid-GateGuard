@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Eldroid</string>
+    <string name="app_name">GateGuard</string>
     <string name="app_logo_desc">App logo</string>
 
     <!-- Bottom navigation -->
@@ -55,6 +55,13 @@
     <string name="no_guards_on_duty">No security currently on duty</string>
     <string name="label_guards_on_duty">Security on Duty</string>
     <string name="label_security">Security</string>
+    <string name="create_security_title">Add Security Account</string>
+    <string name="create_security_subtitle">Admin only — creates a Security Guard login</string>
+    <string name="hint_assigned_gate">Assigned gate (e.g. Main Gate)</string>
+    <string name="btn_create_security">Create Security Account</string>
+    <string name="security_created_success">Account created for %1$s</string>
+    <string name="btn_add_security">+ Add Security Guard</string>
+    <string name="error_gate_empty">Assigned gate is required</string>
     <string name="label_handled_by">Handled by</string>
     <string name="label_assigned_gate">Gate</string>
     <string name="status_on_duty">On Duty</string>
@@ -67,7 +74,7 @@
     <string name="label_personal_info">Personal Information</string>
 
     <!-- Splash screen -->
-    <string name="splash_tagline">Smart Metallic Object Detection\nfor Safer Schools</string>
+    <string name="splash_tagline">Securing every entry point</string>
     <string name="btn_get_started">Get Started</string>
     <string name="splash_already_have">Already have an account? Log In</string>
     <string name="splash_log_in_span">Log In</string>
@@ -93,7 +100,7 @@
     <string name="btn_history">Detection History</string>
 
     <!-- Login screen -->
-    <string name="login_title">Welcome Back</string>
+    <string name="login_title">Welcome to GateGuard</string>
         <string name="login_subtitle">Sign in to your account</string>
     <string name="hint_email">Email address</string>
     <string name="hint_password">Password</string>
@@ -106,6 +113,10 @@
     <string name="signup_title">Create Account</string>
     <string name="signup_subtitle">Fill in all fields to register</string>
     <string name="hint_first_name">First name</string>
+    <string name="hint_role">Role</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_security">Security</string>
+    <string name="error_role_empty">Please select a role</string>
     <string name="hint_last_name">Last name</string>
     <string name="hint_contact_number">Contact number (e.g. 09XXXXXXXXX)</string>
     <string name="hint_address">Home address</string>

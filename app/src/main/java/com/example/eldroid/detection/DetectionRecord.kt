@@ -1,4 +1,4 @@
-package com.example.eldroid
+package com.example.eldroid.detection
 
 import com.google.firebase.Timestamp
 
